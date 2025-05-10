@@ -1,0 +1,154 @@
+SAT Solver User Guide
+======================
+
+This document provides instructions on how to use the SAT solver implementation.
+
+1. Overview
+-----------
+The code implements several SAT solving algorithms:
+- Resolution-based solver
+- Davis-Putnam (DP) solver
+- DPLL solver (with multiple heuristics)
+- PySAT wrapper (Glucose3 solver)
+
+The code also includes:
+- CNF problem generation
+- Benchmarking utilities
+- Performance statistics tracking
+
+2. Requirements
+---------------
+- Python 3.6+
+- Required packages:
+  - numpy
+  - scipy
+  - matplotlib
+  - psutil
+  - pysat
+
+Install requirements with:
+pip install numpy scipy matplotlib psutil python-sat
+
+3. Main Components
+-----------------
+3.1 Solvers:
+- ResolutionSolver: Basic resolution-based SAT solver
+- DPSolver: Davis-Putnam algorithm implementation
+- DPLLSolver: DPLL algorithm with selectable heuristics
+- PySATWrapper: Interface to Glucose3 solver
+
+3.2 Problem Generation:
+- generate_random_3sat(): Creates random 3SAT problems
+- generate_assembly_problem(): Generates assembly line scheduling problems
+
+4. How to Use
+-------------
+4.1 Basic Usage:
+1. Create a CNF problem:
+   cnf = CNF(clauses, num_vars)
+   where:
+   - clauses is a list of lists (each sublist is a clause)
+   - num_vars is the number of variables
+
+2. Create a solver instance:
+   solver = DPLLSolver()  # or any other solver
+
+3. Solve the problem:
+   result = solver.solve(cnf)
+
+4. Interpret results:
+   - If result is None: Timeout occurred
+   - If result is {}: Problem is UNSAT
+   - Otherwise: Dictionary of variable assignments (SAT)
+
+4.2 Running Benchmarks:
+- The main script runs comprehensive benchmarks
+- Execute: python sat_solver.py
+- Results are saved to:
+  - sat_solver_benchmarks.csv
+  - scaling_plot.png
+
+4.3 Custom Problems:
+You can create your own CNF formulas:
+clauses = [
+    [1, 2, 3],    # Clause 1: x1 OR x2 OR x3
+    [-1, 2],       # Clause 2: ¬x1 OR x2
+    [-2, -3]       # Clause 3: ¬x2 OR ¬x3
+]
+cnf = CNF(clauses, 3)  # 3 variables
+
+5. Solver Options
+-----------------
+5.1 DPLL Heuristics:
+- 'random': Random variable selection
+- 'moms': Maximum Occurrences in Minimum Clauses
+- 'jw': Jeroslow-Wang heuristic
+
+Example:
+solver = DPLLSolver(heuristic='jw')
+
+5.2 Timeout Settings:
+All solvers have a 30-second timeout by default.
+Modify with:
+solver.timeout = 60  # 60 seconds
+
+6. Performance Tracking
+----------------------
+Each solver tracks statistics:
+- solver.stats dictionary contains:
+  - decisions: Number of decisions made
+  - backtracks: Number of backtracks
+  - time: Execution time
+  - memory: Peak memory usage
+  - timeout: Boolean if timeout occurred
+  - resolvents/units/pures: Algorithm-specific metrics
+
+7. Example Problems
+-------------------
+7.1 Simple UNSAT problem:
+clauses = [
+    [1, 2],
+    [1, -2],
+    [-1, 2],
+    [-1, -2]
+]
+cnf = CNF(clauses, 2)
+
+7.2 Simple SAT problem:
+clauses = [
+    [1, 2],
+    [-1, 2],
+    [-2, 3]
+]
+cnf = CNF(clauses, 3)
+
+8. Advanced Usage
+-----------------
+8.1 Generating Problems:
+- Random 3SAT:
+  cnf = generate_random_3sat(num_vars=20, num_clauses=80)
+
+- Assembly problem:
+  cnf = generate_assembly_problem(num_tasks=20, num_workstations=5)
+
+8.2 Testing Backtracking:
+Uncomment test_backtracking() in main to see backtracking examples.
+
+9. Output Interpretation
+------------------------
+- Benchmark results show performance metrics
+- Scaling plot visualizes how solvers handle larger problems (I didn't focus much on it , I only used
+   it for a general point of view on the solvers so it's not very accurate)
+- CSV file contains detailed timing and memory data
+
+10. Notes
+---------
+- The Resolution solver is included for educational purposes but is not practical for large problems
+- For production use, the PySATWrapper (Glucose3) is recommended
+- Memory tracking may not be precise on all platforms
+
+For any issues, please check:
+1. All dependencies are installed
+2. Problem sizes are reasonable for the solver
+3. Timeout settings are appropriate for your problem size
+
